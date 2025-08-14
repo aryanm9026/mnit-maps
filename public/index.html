@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>MNIT Jaipur Map</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <!-- Geocoder CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <!-- MarkerCluster CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- Map -->
+    <div id="map"></div>
+
+    <!-- Floor Switcher (hook up later when you add floor plans) -->
+    <div class="floor-switcher">
+      <button data-floor="G">Ground</button>
+      <button data-floor="1">1st</button>
+      <button data-floor="2">2nd</button>
+    </div>
+
+    <!-- Search -->
+    <div id="search-container">
+      <input id="search-box" type="text" placeholder="Search inside MNIT..." />
+      <ul id="suggestions"></ul>
+    </div>
+
+    <!-- Libraries -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+
+    <!-- Your app (ES module so we can import poiData.js) -->
+    <script type="module" src="js/main.js"></script>
+  </body>
+</html>
