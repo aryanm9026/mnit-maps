@@ -1,12 +1,8 @@
-
-console.log("hi")
-
-const map = L.map("map", { zoomControl: true }).setView([26.864, 75.815], 16);
-
+import map from "./main.js"
 const Arrowicon = L.icon({
   iconUrl: 'imgs/compass.png' ,
-  iconSize: [40, 40],    
-  iconAnchor: [20, 20],    
+  iconSize: [26, 26],    
+  iconAnchor: [13, 13],    
 }) 
 
 let usermarker = L.marker([26.864823, 75.808977],{
@@ -16,3 +12,12 @@ let usermarker = L.marker([26.864823, 75.808977],{
 
 
 }).addTo(map)
+
+
+navigator.geolocation.watchPosition(
+  (position) =>{
+    let lat = position.coords.latitude;
+    let long = position.coords.longitude;
+    usermarker.setLatLng([lat,long]);
+  }
+)

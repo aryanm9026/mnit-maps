@@ -1,7 +1,7 @@
 import { poiList } from "./poiData.js";
 
 // Initialize map
-export const map = L.map("map", { zoomControl: true }).setView([26.864, 75.815], 16);
+const map = L.map("map", { zoomControl: true }).setView([26.864, 75.815], 16);
 
 // Basemap (no labels to keep your custom layers clean)
 L.tileLayer(
@@ -191,3 +191,4 @@ function goToPOI(poi) {
 
   map.setView(poi.coords, 18, { animate: true });
 }
+export default map
