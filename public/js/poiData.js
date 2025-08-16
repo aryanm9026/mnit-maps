@@ -1,5 +1,7 @@
 // poiData.js
-export const poiList = [
+// No exports, just a global variable
+
+const poiList = [
   {
     name: "Central Library",
     coords: [26.8635, 75.8112],
@@ -22,3 +24,6 @@ export const poiList = [
     timings: "8:00 AM - 10:00 PM"
   }
 ];
+
+// Make it available globally
+window.poiList = poiList;

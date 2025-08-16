@@ -1,51 +1,36 @@
-import { poiList } from "./poiData.js";
+// No imports anymore — poiList comes from poiData.js
 
-// Initialize map
-const map = L.map("map", { zoomControl: true }).setView([26.864, 75.815], 16);
+const map = L.map("map", {
+  zoomControl: true,
+  minZoom: 15,
+  maxZoom: 20
+}).setView([26.864, 75.815], 16);
 
-// Basemap (no labels to keep your custom layers clean)
+// Blank/white background instead of OSM tiles
 L.tileLayer(
-  "https://cartodb-basemaps-a.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}{r}.png",
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX///+nxBvIAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=",
   {
-    attribution:
-      '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
-    subdomains: "abcd",
+    attribution: "",
     maxZoom: 20
   }
 ).addTo(map);
 
-// Global feature storage for (future) search by layer
 let allFeatures = [];
 
-// Load GeoJSON layers (served by Express static)
+// Load GeoJSON layers
 Promise.all([
   fetch("/data/campus_boundary.geojson").then(res => res.json()),
   fetch("/data/buildings.geojson").then(res => res.json()),
   fetch("/data/paths.geojson").then(res => res.json()),
   fetch("/data/pois.geojson").then(res => res.json())
 ]).then(([boundary, buildings, paths, pois]) => {
-  // 1) Campus boundary (also used to dim outside)
-  const campusLayer = L.geoJSON(boundary, {
-    style: {
-      color: "#d24a43",          // subtle red outline
-      weight: 2.5,
-      fillColor: "#eadfdb",      // soft warm fill
-      fillOpacity: 0.45
-    }
-  }).addTo(map);
-
+  // Campus boundary
+  const campusLayer = L.geoJSON(boundary).addTo(map);
   map.fitBounds(campusLayer.getBounds());
   dimOutside(boundary);
 
-  // 2) Buildings
-  const buildingLayer = L.geoJSON(buildings, {
-    style: {
-      color: "#2C3E50",
-      weight: 1.4,
-      lineJoin: "round",
-      fillColor: "#A9CCE3",
-      fillOpacity: 0.85
-    },
+  // Buildings
+  L.geoJSON(buildings, {
     onEachFeature: (feature, layer) => {
       allFeatures.push(layer);
       layer.bindPopup(
@@ -55,14 +40,10 @@ Promise.all([
     }
   }).addTo(map);
 
-  // 3) Paths – outline + fill for a nice road look
-  const pathOutline = L.geoJSON(paths, {
-    style: { color: "#323232", weight: 6, opacity: 0.85 }
-  }).addTo(map);
-
-  const pathFill = L.geoJSON(paths, {
+  // Paths
+  L.geoJSON(paths, {
     style: {
-      color: "#c5c1ba",     // warm grey works on cream base
+      color: "#242424ff",
       weight: 4,
       opacity: 1,
       lineJoin: "round",
@@ -70,24 +51,16 @@ Promise.all([
     }
   }).addTo(map);
 
-  // 4) POIs from GeoJSON (blue-ish markers for uniformity)
-  const poiIcon = L.divIcon({
-    html: `<div style="
-      background:#ffffff; border:2px solid #6e44ff; width:26px; height:26px;
-      border-radius:50%; display:flex; align-items:center; justify-content:center;
-      box-shadow:0 0 10px rgba(110,68,255,.35); font-weight:700; color:#6e44ff;">•</div>`,
-    className: "poi-icon",
-    iconSize: [26, 26]
-  });
-
+  // POIs with "Navigate" button
   L.geoJSON(pois, {
     pointToLayer: (feature, latlng) =>
-      L.marker(latlng, { icon: poiIcon }).bindPopup(
-        `<b>${feature.properties.name || "POI"}</b><br>${feature.properties.type || ""}`
-      )
+      L.marker(latlng).bindPopup(`
+        <b>${feature.properties.name}</b><br>
+        <button onclick="navigateTo([${latlng.lng}, ${latlng.lat}])">Navigate</button>
+      `)
   }).addTo(map);
 
-  // Leaflet-Control-Geocoder (for general OSM geocoding view)
+  // Geocoder
   L.Control.geocoder({
     defaultMarkGeocode: false,
     geocoder: L.Control.Geocoder.nominatim(),
@@ -97,7 +70,7 @@ Promise.all([
     .addTo(map);
 });
 
-// Dim everything outside the campus polygon
+// Mask outside campus
 function dimOutside(boundaryGeoJSON) {
   const world = {
     type: "Feature",
@@ -114,11 +87,7 @@ function dimOutside(boundaryGeoJSON) {
   }).addTo(map);
 }
 
-/* --------------------------
-   Local POI list: clusters + search
----------------------------*/
-
-// Category groups using marker clustering
+// Marker clusters by category
 const categories = {
   Departments: L.markerClusterGroup(),
   Hostels: L.markerClusterGroup(),
@@ -126,7 +95,7 @@ const categories = {
   Sports: L.markerClusterGroup()
 };
 
-// Add POIs from poiData.js to clusters
+// Add POIs from global poiList
 poiList.forEach(poi => {
   const marker = L.marker(poi.coords, { title: poi.name })
     .bindTooltip(poi.name, { direction: "top" })
@@ -134,7 +103,7 @@ poiList.forEach(poi => {
       `<div style="text-align:center;">
         <h3 style="margin:6px 0 4px;">${poi.name}</h3>
         <p class="popup-desc">${poi.description || ""}</p>
-        <p style="margin:6px 0;"><strong>Timings:</strong> ${poi.timings || "-"}</p>
+        <p><strong>Timings:</strong> ${poi.timings || "-"}</p>
       </div>`
     );
 
@@ -143,15 +112,10 @@ poiList.forEach(poi => {
   }
 });
 
-// Add layer control for clusters
 L.control.layers(null, categories, { collapsed: false }).addTo(map);
+Object.values(categories).forEach(g => map.addLayer(g));
 
-// Add cluster layers to map by default
-Object.values(categories).forEach(group => map.addLayer(group));
-
-/* --------------------------
-   Simple search box (poiData.js)
----------------------------*/
+// Search box logic
 const searchBox = document.getElementById("search-box");
 const suggestions = document.getElementById("suggestions");
 let highlightMarker = null;
@@ -191,3 +155,33 @@ function goToPOI(poi) {
 
   map.setView(poi.coords, 18, { animate: true });
 }
+
+// Navigation: test route from fixed point to clicked POI
+let activeRoute;
+
+window.navigateTo = function(endCoords) {
+  const startCoords = [75.81237, 26.86413]; // [lng, lat]
+
+ fetch("/route", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ start: startCoords, end: endCoords })
+})
+    .then(res => res.json())
+    .then(data => {
+      if (activeRoute) map.removeLayer(activeRoute);
+      console.log(data)
+      if (!data.path) {
+        alert("No this route found");
+        return;
+      }
+
+      activeRoute = L.polyline(
+        data.path.map(c => [c[1], c[0]]), // [lng, lat] -> [lat, lng]
+        { color: "blue", weight: 5 }
+      ).addTo(map);
+
+      map.fitBounds(activeRoute.getBounds(), { padding: [30, 30] });
+    })
+    .catch(err => console.error("Route error:", err));
+};
