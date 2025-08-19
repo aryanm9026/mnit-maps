@@ -191,4 +191,4 @@ function goToPOI(poi) {
 
   map.setView(poi.coords, 18, { animate: true });
 }
-export default map
+export default map;

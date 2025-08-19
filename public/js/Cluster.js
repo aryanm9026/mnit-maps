@@ -1,23 +1,37 @@
-import map from "./main.js"
+import map from "./main.js";
+
 const Arrowicon = L.icon({
-  iconUrl: 'imgs/compass.png' ,
-  iconSize: [26, 26],    
-  iconAnchor: [13, 13],    
-}) 
+  iconUrl: "imgs/compass.png",
+  iconSize: [26, 26],
+  iconAnchor: [13, 13],
+});
 
-let usermarker = L.marker([26.864823, 75.808977],{
+let usermarker = L.marker([26.864, 75.815], {
   icon: Arrowicon,
-  rotationAngle: 0,
+}).addTo(map);
+
+function handlePosition(position) {
+  const lat = position.coords.latitude;
+  const lng = position.coords.longitude;
+  const speed = position.coords.speed;
 
 
+  usermarker.setLatLng([lat, lng]);
 
-}).addTo(map)
+  
+  document.getElementById("speed").innerHTML =
+    speed !== null ? `${speed.toFixed(2)} m/s` : "No speed data";
 
 
-navigator.geolocation.watchPosition(
-  (position) =>{
-    let lat = position.coords.latitude;
-    let long = position.coords.longitude;
-    usermarker.setLatLng([lat,long]);
-  }
-)
+  map.setView([lat, lng], map.getZoom(), { animate: true });
+}
+
+function handleError(error) {
+  console.error("Geolocation error:", error);
+}
+
+navigator.geolocation.watchPosition(handlePosition, handleError, {
+  enableHighAccuracy: true,
+  maximumAge: 1000,   
+  timeout: 10000,     
+});
