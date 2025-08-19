@@ -123,3 +123,11 @@ html, body {
 #suggestions li:hover {
   background-color: #f0f0f0;
 }
+
+
+#speed{
+height: 50px;
+width: 50px;
+background-color: yellow;
+color: black;
+}
