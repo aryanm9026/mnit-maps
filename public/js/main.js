@@ -83,7 +83,7 @@ Promise.all([
   L.geoJSON(pois, {
     pointToLayer: (feature, latlng) =>
       L.marker(latlng, { icon: poiIcon }).bindPopup(
-        `<b>${feature.properties.name || "POI"}</b><br>${feature.properties.type || ""}`
+        `<b>${feature.properties.Name || "POI"}</b><br>${feature.properties.Description|| ""}`
       )
   }).addTo(map);
 
