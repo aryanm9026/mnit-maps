@@ -85,3 +85,4 @@ navigator.geolocation.watchPosition(handlePosition, console.error, {
   maximumAge: 1000,
   timeout: 10000,
 });
+
