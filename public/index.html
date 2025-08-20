@@ -9,15 +9,30 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet-pulse-icon/dist/L.Icon.Pulse.css"
+    />
+    <script src="https://unpkg.com/leaflet-pulse-icon/dist/L.Icon.Pulse.js"></script>
+
     <!-- Turf.js (for geo operations) -->
     <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
 
     <!-- Leaflet plugins -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css"
+    />
     <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css"
+    />
     <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
 
     <!-- Custom CSS -->
@@ -26,22 +41,37 @@
   <body>
     <!-- Map container -->
     <div id="map"></div>
-
-    <!-- Floor switcher (optional future feature) -->
-    <div class="floor-switcher">
-      <button data-floor="G">Ground</button>
-      <button data-floor="1">1st</button>
-      <button data-floor="2">2nd</button>
-    </div>
+    <div class="focus-mask" id="focusMask"></div>
 
     <!-- Search UI -->
+    <!-- Search Container -->
     <div id="search-container">
-      <input id="search-box" type="text" placeholder="Search inside MNIT..." />
+      <!-- New styled search bar -->
+      <div class="InputContainer">
+        <input
+          placeholder="Search inside MNIT..."
+          id="search-box"
+          class="input"
+          name="text"
+          type="text"
+        />
+      </div>
+
+      <!-- Suggestions list -->
       <ul id="suggestions"></ul>
+
+      <!-- Speed display -->
+      <div id="speed">0 m/s</div>
+    </div>
+
+    <div style="position: absolute; top: 20px; right: 20px; z-index: 2000">
+      <button onclick="locateUser()" class="btn-donate">Locate Me</button>
     </div>
 
     <!-- Your main JS (no module, runs in browser scope) -->
     <script src="js/poiData.js"></script>
+    <script src="js/iconSet.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/Cluster.js"></script>
   </body>
 </html>

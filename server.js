@@ -13,13 +13,10 @@ app.use(express.json());
 // Serve frontend files
 app.use(express.static(path.join(__dirname, "public")));
 
-// Load paths GeoJSON (graph for navigation)
 const paths = JSON.parse(
   fs.readFileSync(path.join(__dirname, "./public/data/paths.geojson"))
 );
-const pathFinder = new GeoJSONPathFinder(paths, {
-    precision: 16
-});
+const pathFinder = new GeoJSONPathFinder(paths);
 
 // Route to calculate shortest path
 app.post("/route", (req, res) => {
@@ -30,12 +27,13 @@ app.post("/route", (req, res) => {
   if (!start || !end) {
     return res.status(400).json({ error: "Missing start or end" });
   }
-  
+
 
   try {
+    let lund = [75.8105302,26.8589208];
     const route = pathFinder.findPath(
       turf.point(start), // [lng, lat]
-      turf.point(end)    // [lng, lat]
+      turf.point(lund)    // [lng, lat]
     );
 
     if (!route) {
